@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมหาระเบิด - สองคน</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: -1;
+            animation: floatingBubbles 20s ease-in-out infinite;
+        }
+
+        @keyframes floatingBubbles {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+            25% { 
+                transform: translateY(-20px) rotate(90deg);
+                opacity: 1;
+            }
+            50% { 
+                transform: translateY(-10px) rotate(180deg);
+                opacity: 0.8;
+            }
+            75% { 
+                transform: translateY(-30px) rotate(270deg);
+                opacity: 0.9;
+            }
+        }
+
+        /* ดาวตกสวยงาม */
+        .shooting-star {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 15px 4px rgba(255, 255, 255, 0.9);
+            z-index: 1;
+        }
+
+        .shooting-star::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.8) 0%, transparent 100%);
+            transform: translate(-100%, -50%);
+            border-radius: 2px;
+        }
+
+        .shooting-star.golden {
+            background: #ffd700;
+            box-shadow: 0 0 20px 6px rgba(255, 215, 0, 0.8);
+        }
+
+        .shooting-star.golden::before {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.9) 0%, rgba(255, 215, 0, 0.3) 50%, transparent 100%);
+        }
+
+        .shooting-star.blue {
+            background: #3b82f6;
+            box-shadow: 0 0 20px 6px rgba(59, 130, 246, 0.8);
+        }
+
+        .shooting-star.blue::before {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.9) 0%, rgba(59, 130, 246, 0.3) 50%, transparent 100%);
+        }
+
+        .shooting-star.purple {
+            background: #9333ea;
+            box-shadow: 0 0 20px 6px rgba(147, 51, 234, 0.8);
+        }
+
+        .shooting-star.purple::before {
+            background: linear-gradient(90deg, rgba(147, 51, 234, 0.9) 0%, rgba(147, 51, 234, 0.3) 50%, transparent 100%);
+        }
+
+        @keyframes shootingStar {
+            0% {
+                transform: translateX(-150px) translateY(150px);
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+            }
+            95% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(calc(100vw + 150px)) translateY(-150px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes shootingStarDiagonal {
+            0% {
+                transform: translateX(-150px) translateY(-50px);
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+            }
+            95% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(calc(100vw + 150px)) translateY(calc(100vh + 50px));
+                opacity: 0;
+            }
+        }
+
+        @keyframes shootingStarVertical {
+            0% {
+                transform: translateX(0px) translateY(-150px);
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+            }
+            95% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(50px) translateY(calc(100vh + 150px));
+                opacity: 0;
+            }
+        }
+
+        /* เอฟเฟกต์ดาวกระพริบ */
+        .twinkling-stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* เอฟเฟกต์คอมโบ */
+        .combo-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 1001;
+            pointer-events: none;
+            animation: comboAnimation 2s ease-out forwards;
+        }
+
+        @keyframes comboAnimation {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            40% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8) translateY(-50px);
+            }
+        }
+
+        /* เอฟเฟกต์ปาร์ติเคิล */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            animation: particleFloat 2s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 1;
+                transform: scale(1) translate(0, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0) translate(var(--dx, 0), var(--dy, -100px));
+            }
+        }
+
+        /* เอฟเฟกต์เรนโบว์เมื่อได้คะแนนสูง */
+        .rainbow-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                rgba(255,0,0,0.1) 0%, 
+                rgba(255,154,0,0.1) 16%, 
+                rgba(255,255,0,0.1) 32%, 
+                rgba(0,255,0,0.1) 48%, 
+                rgba(0,255,255,0.1) 64%, 
+                rgba(0,0,255,0.1) 80%, 
+                rgba(255,0,255,0.1) 100%);
+            pointer-events: none;
+            z-index: 998;
+            opacity: 0;
+            animation: rainbowPulse 1s ease-in-out;
+        }
+
+        @keyframes rainbowPulse {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .player-info {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .player-info.active {
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
+            transform: scale(1.05);
+        }
+
+        .player-info.blue {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        .player-info.red {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .player-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .player-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .current-turn {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .timer-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .timer.warning {
+            color: #ef4444;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .selection-status {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .player-selection {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+        }
+
+        .player-selection.selected {
+            background: rgba(16, 185, 129, 0.3);
+            border: 2px solid #10b981;
+        }
+
+        .player-selection.waiting {
+            background: rgba(156, 163, 175, 0.3);
+            border: 2px solid #9ca3af;
+        }
+
+        .cell.selected-p1 {
+            border: 3px solid #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+        }
+
+        .cell.selected-p2 {
+            border: 3px solid #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 3px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #f0f0f0, #d0d0d0);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cell:hover:not(.revealed) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            background: linear-gradient(145deg, #ffffff, #e0e0e0);
+        }
+
+        .cell.revealed {
+            cursor: default;
+            transform: none;
+        }
+
+        .cell.safe {
+            background: linear-gradient(145deg, #10b981, #059669);
+            color: white;
+            animation: safeReveal 0.5s ease-out;
+        }
+
+        @keyframes safeReveal {
+            0% {
+                transform: scale(1);
+                background: linear-gradient(145deg, #10b981, #059669);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+            25% {
+                transform: scale(1.15);
+                background: linear-gradient(145deg, #34d399, #10b981);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+            }
+            50% {
+                transform: scale(1.2) rotate(2deg);
+                background: linear-gradient(145deg, #6ee7b7, #34d399);
+                box-shadow: 0 0 30px rgba(52, 211, 153, 0.8);
+            }
+            75% {
+                transform: scale(1.1) rotate(-1deg);
+                background: linear-gradient(145deg, #10b981, #059669);
+                box-shadow: 0 0 25px rgba(16, 185, 129, 0.7);
+            }
+            100% {
+                transform: scale(1);
+                background: linear-gradient(145deg, #10b981, #059669);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+        }
+
+        .cell.bomb {
+            background: linear-gradient(145deg, #ef4444, #dc2626);
+            color: white;
+            animation: explode 0.6s ease-out;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(1);
+                background: linear-gradient(145deg, #ef4444, #dc2626);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+            25% {
+                transform: scale(1.3);
+                background: linear-gradient(145deg, #fbbf24, #f59e0b);
+                box-shadow: 0 0 30px rgba(251, 191, 36, 0.8);
+            }
+            50% {
+                transform: scale(1.5) rotate(5deg);
+                background: linear-gradient(145deg, #ffffff, #fbbf24);
+                box-shadow: 0 0 50px rgba(255, 255, 255, 0.9);
+            }
+            75% {
+                transform: scale(1.2) rotate(-3deg);
+                background: linear-gradient(145deg, #ef4444, #dc2626);
+                box-shadow: 0 0 40px rgba(239, 68, 68, 0.7);
+            }
+            100% {
+                transform: scale(1);
+                background: linear-gradient(145deg, #ef4444, #dc2626);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+        }
+
+        .screen-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .flash-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.4) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0;
+            animation: flash 0.3s ease-out;
+        }
+
+        @keyframes flash {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(145deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .game-over-content {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: #333;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .winner-text {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .final-scores {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 226, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(255, 215, 0, 0.2) 0%, transparent 40%),
+                linear-gradient(135deg, #667eea 0%, #764ba2 30%, #f093fb 60%, #667eea 100%);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 400% 400%;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            color: white;
+            animation: gradientShift 15s ease-in-out infinite;
+            overflow: hidden;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { 
+                background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%, 0% 50%;
+            }
+            25% { 
+                background-position: 25% 25%, 75% 75%, 50% 50%, 30% 70%, 25% 75%;
+            }
+            50% { 
+                background-position: 100% 50%, 0% 50%, 100% 0%, 70% 30%, 50% 50%;
+            }
+            75% { 
+                background-position: 75% 75%, 25% 25%, 50% 100%, 40% 60%, 75% 25%;
+            }
+        }
+
+        .start-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 85% 75%, rgba(255, 255, 255, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 60% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 35%),
+                radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.12) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: -1;
+            animation: floatingBubbles 25s ease-in-out infinite reverse;
+        }
+
+        /* ลูกเล่นพิเศษสำหรับหน้าเริ่มเกม */
+        .start-screen::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 160px 30px, rgba(255,255,255,0.2), transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: sparkleMove 20s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes sparkleMove {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-200px) translateY(-100px); }
+        }
+
+        /* ลูกเล่นวงกลมลอย */
+        .floating-orbs {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.1));
+            backdrop-filter: blur(2px);
+            animation: floatOrb 15s ease-in-out infinite;
+        }
+
+        .orb:nth-child(1) {
+            width: 60px;
+            height: 60px;
+            top: 20%;
+            left: 10%;
+            background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.6), rgba(59, 130, 246, 0.1));
+            animation-delay: 0s;
+        }
+
+        .orb:nth-child(2) {
+            width: 40px;
+            height: 40px;
+            top: 60%;
+            right: 15%;
+            background: radial-gradient(circle at 30% 30%, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.1));
+            animation-delay: -5s;
+        }
+
+        .orb:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            bottom: 20%;
+            left: 20%;
+            background: radial-gradient(circle at 30% 30%, rgba(16, 185, 129, 0.5), rgba(16, 185, 129, 0.1));
+            animation-delay: -10s;
+        }
+
+        .orb:nth-child(4) {
+            width: 30px;
+            height: 30px;
+            top: 30%;
+            right: 30%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.7), rgba(255, 215, 0, 0.1));
+            animation-delay: -7s;
+        }
+
+        .orb:nth-child(5) {
+            width: 50px;
+            height: 50px;
+            bottom: 40%;
+            right: 10%;
+            background: radial-gradient(circle at 30% 30%, rgba(147, 51, 234, 0.6), rgba(147, 51, 234, 0.1));
+            animation-delay: -3s;
+        }
+
+        @keyframes floatOrb {
+            0%, 100% { 
+                transform: translateY(0px) translateX(0px) scale(1);
+                opacity: 0.7;
+            }
+            25% { 
+                transform: translateY(-30px) translateX(20px) scale(1.1);
+                opacity: 1;
+            }
+            50% { 
+                transform: translateY(-10px) translateX(-15px) scale(0.9);
+                opacity: 0.8;
+            }
+            75% { 
+                transform: translateY(-40px) translateX(10px) scale(1.05);
+                opacity: 0.9;
+            }
+        }
+
+        /* ลูกระเบิดลอยไปมา - เฉพาะหน้าเริ่มเกม */
+        .start-screen .floating-circles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        /* ซ่อนลูกระเบิดในหน้าเกม */
+        body:not(.start-screen-active) .floating-circles {
+            display: none;
+        }
+
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: floatBomb 12s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .floating-circle.bomb1 {
+            background: radial-gradient(circle at 30% 30%, rgba(50, 50, 50, 0.9), rgba(20, 20, 20, 0.6));
+            box-shadow: 0 0 25px rgba(255, 69, 0, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 69, 0, 0.4);
+        }
+
+        .floating-circle.bomb2 {
+            background: radial-gradient(circle at 30% 30%, rgba(80, 30, 30, 0.9), rgba(40, 15, 15, 0.6));
+            box-shadow: 0 0 25px rgba(220, 38, 38, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(220, 38, 38, 0.4);
+        }
+
+        .floating-circle.bomb3 {
+            background: radial-gradient(circle at 30% 30%, rgba(30, 30, 80, 0.9), rgba(15, 15, 40, 0.6));
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .floating-circle.bomb4 {
+            background: radial-gradient(circle at 30% 30%, rgba(80, 60, 20, 0.9), rgba(40, 30, 10, 0.6));
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+        }
+
+        .floating-circle.bomb5 {
+            background: radial-gradient(circle at 30% 30%, rgba(60, 30, 80, 0.9), rgba(30, 15, 40, 0.6));
+            box-shadow: 0 0 25px rgba(147, 51, 234, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(147, 51, 234, 0.4);
+        }
+
+        @keyframes floatBomb {
+            0%, 100% { 
+                transform: translateY(0px) translateX(0px) scale(1) rotate(0deg);
+                opacity: 0.8;
+            }
+            25% { 
+                transform: translateY(-60px) translateX(40px) scale(1.1) rotate(90deg);
+                opacity: 1;
+            }
+            50% { 
+                transform: translateY(-30px) translateX(-50px) scale(0.9) rotate(180deg);
+                opacity: 0.7;
+            }
+            75% { 
+                transform: translateY(-80px) translateX(30px) scale(1.05) rotate(270deg);
+                opacity: 0.9;
+            }
+        }
+
+        /* ประกายแสงเคลื่อนที่ผ่านหน้าจอ */
+        .moving-stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .moving-star {
+            position: absolute;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            animation: moveStar 12s linear infinite;
+        }
+
+        .moving-star:nth-child(1) {
+            top: 10%;
+            animation-delay: 0s;
+            color: rgba(255, 215, 0, 0.9);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .moving-star:nth-child(2) {
+            top: 30%;
+            animation-delay: -3s;
+            color: rgba(59, 130, 246, 0.9);
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+        }
+
+        .moving-star:nth-child(3) {
+            top: 50%;
+            animation-delay: -6s;
+            color: rgba(16, 185, 129, 0.9);
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.8);
+        }
+
+        .moving-star:nth-child(4) {
+            top: 70%;
+            animation-delay: -9s;
+            color: rgba(239, 68, 68, 0.9);
+            text-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+        }
+
+        .moving-star:nth-child(5) {
+            top: 20%;
+            animation-delay: -1.5s;
+            color: rgba(147, 51, 234, 0.9);
+            text-shadow: 0 0 15px rgba(147, 51, 234, 0.8);
+        }
+
+        .moving-star:nth-child(6) {
+            top: 60%;
+            animation-delay: -4.5s;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes moveStar {
+            0% {
+                left: -50px;
+                transform: translateY(0px) rotate(0deg) scale(0.5);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(-10px) rotate(45deg) scale(1);
+            }
+            50% {
+                transform: translateY(-30px) rotate(180deg) scale(1.2);
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(-20px) rotate(315deg) scale(1);
+            }
+            100% {
+                left: calc(100% + 50px);
+                transform: translateY(0px) rotate(360deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        /* เอฟเฟกต์ระเบิดเล็กๆ */
+        .mini-explosions {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .mini-explosion {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, rgba(255, 69, 0, 0.6) 50%, transparent 100%);
+            animation: miniExplode 8s ease-in-out infinite;
+        }
+
+        .mini-explosion:nth-child(1) {
+            top: 15%;
+            left: 80%;
+            animation-delay: 0s;
+        }
+
+        .mini-explosion:nth-child(2) {
+            top: 70%;
+            left: 5%;
+            animation-delay: -2s;
+        }
+
+        .mini-explosion:nth-child(3) {
+            top: 40%;
+            left: 60%;
+            animation-delay: -4s;
+        }
+
+        .mini-explosion:nth-child(4) {
+            bottom: 10%;
+            right: 40%;
+            animation-delay: -6s;
+        }
+
+        @keyframes miniExplode {
+            0%, 90%, 100% { 
+                transform: scale(0);
+                opacity: 0;
+            }
+            5% { 
+                transform: scale(1.5);
+                opacity: 1;
+            }
+            10% { 
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            15% { 
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* เอฟเฟกต์ระเบิดสุ่ม */
+        .random-explosion {
+            position: fixed;
+            font-size: 1.5rem;
+            pointer-events: none;
+            z-index: 100;
+            animation: randomExplode 1.5s ease-out forwards;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        @keyframes randomExplode {
+            0% { 
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% { 
+                transform: scale(1.8) rotate(45deg);
+                opacity: 1;
+            }
+            20% { 
+                transform: scale(1.2) rotate(90deg);
+                opacity: 0.9;
+            }
+            40% { 
+                transform: scale(1.5) rotate(180deg);
+                opacity: 0.7;
+            }
+            70% { 
+                transform: scale(1) rotate(270deg);
+                opacity: 0.5;
+            }
+            100% { 
+                transform: scale(0.3) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .start-content {
+            background: rgba(255,255,255,0.1);
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .start-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .start-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .game-rules {
+            background: rgba(0,0,0,0.2);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .rules-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffd700;
+        }
+
+        .rules-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rules-list li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .rules-list li:before {
+            content: "🎯";
+            position: absolute;
+            left: 0;
+        }
+
+        .start-button {
+            background: linear-gradient(145deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(145deg, #34d399, #10b981);
+        }
+
+        .players-info {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            gap: 20px;
+        }
+
+        .player-preview {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            flex: 1;
+        }
+
+        .player-preview.blue {
+            border: 2px solid #3b82f6;
+        }
+
+        .player-preview.red {
+            border: 2px solid #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .cell {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .game-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ดาวกระพริบ -->
+    <div class="twinkling-stars" id="twinklingStars"></div>
+    
+
+    
+    <!-- ประกายแสงเคลื่อนที่ -->
+    <div class="moving-stars" id="movingStars">
+        <div class="moving-star">⭐</div>
+        <div class="moving-star">⭐</div>
+        <div class="moving-star">⭐</div>
+        <div class="moving-star">⭐</div>
+        <div class="moving-star">⭐</div>
+        <div class="moving-star">⭐</div>
+    </div>
+
+    <div class="game-header">
+        <h1 class="game-title">💣 Watch out for bombs</h1>
+    </div>
+
+    <div class="game-info">
+        <div class="player-info blue" id="player1Info">
+            <div class="player-name">🔵 ODD</div>
+            <div class="player-score" id="player1Score">0 คะแนน</div>
+        </div>
+        <div class="current-turn" id="currentTurn">
+            เลือกช่องที่ต้องการกด!
+        </div>
+        <div class="player-info red" id="player2Info">
+            <div class="player-name">🔴 ADD</div>
+            <div class="player-score" id="player2Score">0 คะแนน</div>
+        </div>
+    </div>
+
+    <div class="timer-container">
+        <div class="timer" id="timer">30</div>
+        <div>วินาที</div>
+    </div>
+
+    <div class="selection-status">
+        <div class="player-selection waiting" id="p1Status">
+            🔵 ODD: รอการเลือก...
+        </div>
+        <div class="player-selection waiting" id="p2Status">
+            🔴 ADD: รอการเลือก...
+        </div>
+    </div>
+
+    <div class="game-board" id="gameBoard"></div>
+
+    <div class="controls">
+        <button class="btn btn-primary" onclick="resetGame()">🔄 เริ่มเกมใหม่</button>
+    </div>
+
+    <div class="start-screen" id="startScreen">
+        <!-- ลูกระเบิดลอยไปมา -->
+        <div class="floating-circles">
+            <!-- จะถูกสร้างด้วย JavaScript -->
+        </div>
+
+        <!-- ดาวตกสวยงาม -->
+        <div class="shooting-stars-container">
+            <!-- จะถูกสร้างด้วย JavaScript -->
+        </div>
+
+        <!-- ลูกเล่นวงกลมลอย -->
+        <div class="floating-orbs">
+            <div class="orb"></div>
+            <div class="orb"></div>
+            <div class="orb"></div>
+            <div class="orb"></div>
+            <div class="orb"></div>
+        </div>
+
+        <!-- เอฟเฟกต์แสงกระพริบ -->
+        <div class="light-rays">
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+        </div>
+
+        <!-- เอฟเฟกต์ระเบิดเล็กๆ -->
+        <div class="mini-explosions">
+            <div class="mini-explosion"></div>
+            <div class="mini-explosion"></div>
+            <div class="mini-explosion"></div>
+            <div class="mini-explosion"></div>
+        </div>
+
+        <div class="start-content">
+            <h1 class="start-title">💣 Watch out for bombs</h1>
+            
+            <div class="players-info">
+                <div class="player-preview blue">
+                    <div style="font-size: 1.2rem; font-weight: bold;">🔵 ODD</div>
+                </div>
+                <div class="player-preview red">
+                    <div style="font-size: 1.2rem; font-weight: bold;">🔴 ADD</div>
+                </div>
+            </div>
+
+            <div class="game-rules">
+                <div class="rules-title">📋 กติกาการเล่น</div>
+                <ul class="rules-list">
+                    <li>ผู้เล่นทั้งสองเลือกช่องพร้อมกันภายใน 30 วินาที</li>
+                    <li>ช่องที่เลือกจะมีกรอบสีน้ำเงิน (ODD) และสีแดง (ADD)</li>
+                    <li>เมื่อทั้งคู่เลือกแล้ว หรือหมดเวลา ช่องจะเปิดพร้อมกัน</li>
+                    <li>ช่องปลอดภัย ✅ ได้ +10 คะแนน</li>
+                    <li>ช่องระเบิด 💣 ได้ -10 คะแนน</li>
+                    <li>⏰ ไม่เลือกช่องจนหมดเวลา ได้ -5 คะแนน</li>
+                    <li>ผู้เล่นที่ได้คะแนนสูงสุดเมื่อจบเกมจะเป็นผู้ชนะ</li>
+                </ul>
+            </div>
+
+            <button class="start-button" onclick="startGame()">🚀 เริ่มเกม</button>
+        </div>
+    </div>
+
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <div class="winner-text" id="winnerText"></div>
+            <div class="final-scores" id="finalScores"></div>
+            <button class="btn btn-primary" onclick="resetGame()">เล่นอีกครั้ง</button>
+        </div>
+    </div>
+
+    <script>
+        class BombGame {
+            constructor() {
+                this.boardSize = 8;
+                this.bombCount = 18;
+                this.player1Score = 0;
+                this.player2Score = 0;
+                this.gameBoard = [];
+                this.revealedCells = 0;
+                this.totalCells = this.boardSize * this.boardSize;
+                this.gameEnded = false;
+                this.gameStarted = false;
+                
+                // ระบบเลือกพร้อมกัน
+                this.player1Selection = null;
+                this.player2Selection = null;
+                this.timeLeft = 30;
+                this.timerInterval = null;
+                this.roundInProgress = false;
+                
+                // ระบบคอมโบและเอฟเฟกต์
+                this.player1Combo = 0;
+                this.player2Combo = 0;
+                this.consecutiveSafe = 0;
+                
+                // สร้างดาวกระพริบ
+                this.createTwinklingStars();
+                this.createShootingStars();
+                this.createRandomExplosions();
+                this.createFloatingCircles();
+                
+                // ไม่เริ่มเกมทันที รอให้กดปุ่มเริ่มเกม
+            }
+
+            createTwinklingStars() {
+                const starsContainer = document.getElementById('twinklingStars');
+                for (let i = 0; i < 50; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.animationDelay = Math.random() * 2 + 's';
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            createShootingStars() {
+                setInterval(() => {
+                    // เฉพาะในหน้าเริ่มเกม
+                    const startScreen = document.getElementById('startScreen');
+                    if (!startScreen || startScreen.style.display === 'none') return;
+                    
+                    if (Math.random() < 0.6) { // 60% โอกาสทุก 3 วินาที
+                        const shootingStar = document.createElement('div');
+                        const starTypes = ['', 'golden', 'blue', 'purple'];
+                        const animations = ['shootingStar', 'shootingStarDiagonal', 'shootingStarVertical'];
+                        
+                        const starType = starTypes[Math.floor(Math.random() * starTypes.length)];
+                        const animation = animations[Math.floor(Math.random() * animations.length)];
+                        
+                        shootingStar.className = `shooting-star ${starType}`;
+                        shootingStar.style.animation = `${animation} ${2 + Math.random() * 2}s linear`;
+                        
+                        // ตำแหน่งเริ่มต้นตามประเภทแอนิเมชัน
+                        if (animation === 'shootingStar') {
+                            shootingStar.style.top = Math.random() * 60 + '%';
+                            shootingStar.style.left = '-150px';
+                        } else if (animation === 'shootingStarDiagonal') {
+                            shootingStar.style.top = '-50px';
+                            shootingStar.style.left = Math.random() * 30 + '%';
+                        } else if (animation === 'shootingStarVertical') {
+                            shootingStar.style.top = '-150px';
+                            shootingStar.style.left = Math.random() * 100 + '%';
+                        }
+                        
+                        startScreen.appendChild(shootingStar);
+                        
+                        setTimeout(() => {
+                            if (startScreen.contains(shootingStar)) {
+                                startScreen.removeChild(shootingStar);
+                            }
+                        }, 4000);
+                    }
+                }, 3000);
+            }
+
+            createRandomExplosions() {
+                setInterval(() => {
+                    if (Math.random() < 0.4) { // 40% โอกาสทุก 3 วินาที
+                        const explosion = document.createElement('div');
+                        explosion.className = 'random-explosion';
+                        explosion.style.left = Math.random() * 100 + '%';
+                        explosion.style.top = Math.random() * 100 + '%';
+                        explosion.innerHTML = '💥';
+                        document.body.appendChild(explosion);
+                        
+                        // สร้างประกายรอบๆ ระเบิด
+                        const rect = explosion.getBoundingClientRect();
+                        this.createParticles(rect.left + rect.width/2, rect.top + rect.height/2, '#fbbf24', 6);
+                        
+                        setTimeout(() => {
+                            if (document.body.contains(explosion)) {
+                                document.body.removeChild(explosion);
+                            }
+                        }, 1500);
+                    }
+                }, 3000);
+            }
+
+            createFloatingCircles() {
+                const circlesContainer = document.querySelector('.start-screen .floating-circles');
+                if (!circlesContainer) return;
+                
+                const bombTypes = ['bomb1', 'bomb2', 'bomb3', 'bomb4', 'bomb5'];
+                const sizes = [40, 50, 60, 70, 80];
+                const bombEmojis = ['💣', '🧨', '💥', '⚡', '🔥'];
+                
+                // สร้างลูกระเบิด 15 ลูก
+                for (let i = 0; i < 15; i++) {
+                    const circle = document.createElement('div');
+                    const bombType = bombTypes[Math.floor(Math.random() * bombTypes.length)];
+                    circle.className = `floating-circle ${bombType}`;
+                    
+                    const size = sizes[Math.floor(Math.random() * sizes.length)];
+                    circle.style.width = size + 'px';
+                    circle.style.height = size + 'px';
+                    circle.style.left = Math.random() * 100 + '%';
+                    circle.style.top = Math.random() * 100 + '%';
+                    circle.style.animationDelay = Math.random() * 12 + 's';
+                    circle.style.animationDuration = (10 + Math.random() * 6) + 's';
+                    
+                    // เพิ่มอีโมจิลูกระเบิด
+                    circle.textContent = bombEmojis[Math.floor(Math.random() * bombEmojis.length)];
+                    
+                    circlesContainer.appendChild(circle);
+                }
+            }
+
+            createParticles(x, y, color, count = 8) {
+                for (let i = 0; i < count; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.background = color;
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    
+                    const angle = (360 / count) * i;
+                    const velocity = 50 + Math.random() * 50;
+                    const radian = angle * Math.PI / 180;
+                    
+                    particle.style.setProperty('--dx', Math.cos(radian) * velocity + 'px');
+                    particle.style.setProperty('--dy', Math.sin(radian) * velocity + 'px');
+                    
+                    document.body.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(particle);
+                    }, 2000);
+                }
+            }
+
+            showComboEffect(combo, player) {
+                if (combo < 3) return; // แสดงคอมโบเมื่อได้ 3 ครั้งติดต่อกันขึ้นไป
+                
+                const comboElement = document.createElement('div');
+                comboElement.className = 'combo-effect';
+                comboElement.textContent = `🔥 COMBO x${combo}! 🔥`;
+                
+                if (player === 1) {
+                    comboElement.style.color = '#3b82f6';
+                } else {
+                    comboElement.style.color = '#ef4444';
+                }
+                
+                document.body.appendChild(comboElement);
+                
+                setTimeout(() => {
+                    document.body.removeChild(comboElement);
+                }, 2000);
+            }
+
+            showTimeoutMessage(message) {
+                const timeoutElement = document.createElement('div');
+                timeoutElement.className = 'combo-effect';
+                timeoutElement.textContent = message;
+                timeoutElement.style.color = '#fbbf24';
+                timeoutElement.style.fontSize = '2rem';
+                
+                document.body.appendChild(timeoutElement);
+                
+                setTimeout(() => {
+                    document.body.removeChild(timeoutElement);
+                }, 2000);
+            }
+
+            triggerRainbowEffect() {
+                const rainbow = document.createElement('div');
+                rainbow.className = 'rainbow-effect';
+                document.body.appendChild(rainbow);
+                
+                setTimeout(() => {
+                    document.body.removeChild(rainbow);
+                }, 1000);
+            }
+
+            startGame() {
+                this.gameStarted = true;
+                document.getElementById('startScreen').style.display = 'none';
+                this.initGame();
+            }
+
+            initGame() {
+                this.createBoard();
+                this.placeBombs();
+                this.renderBoard();
+                this.updateUI();
+                this.startNewRound();
+            }
+
+            startNewRound() {
+                if (this.gameEnded) return;
+                
+                this.player1Selection = null;
+                this.player2Selection = null;
+                this.timeLeft = 30;
+                this.roundInProgress = true;
+                
+                this.updateSelectionStatus();
+                this.startTimer();
+                
+                // เอาการเลือกเก่าออก
+                document.querySelectorAll('.cell').forEach(cell => {
+                    cell.classList.remove('selected-p1', 'selected-p2');
+                });
+            }
+
+            startTimer() {
+                this.updateTimer();
+                this.timerInterval = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateTimer();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.timeUp();
+                    }
+                }, 1000);
+            }
+
+            updateTimer() {
+                const timerElement = document.getElementById('timer');
+                timerElement.textContent = this.timeLeft;
+                
+                if (this.timeLeft <= 5) {
+                    timerElement.classList.add('warning');
+                } else {
+                    timerElement.classList.remove('warning');
+                }
+            }
+
+            timeUp() {
+                clearInterval(this.timerInterval);
+                this.processSelections();
+            }
+
+            createBoard() {
+                this.gameBoard = [];
+                for (let i = 0; i < this.totalCells; i++) {
+                    this.gameBoard.push({
+                        isBomb: false,
+                        isRevealed: false,
+                        index: i
+                    });
+                }
+            }
+
+            placeBombs() {
+                const bombPositions = new Set();
+                while (bombPositions.size < this.bombCount) {
+                    const randomPos = Math.floor(Math.random() * this.totalCells);
+                    bombPositions.add(randomPos);
+                }
+                
+                bombPositions.forEach(pos => {
+                    this.gameBoard[pos].isBomb = true;
+                });
+            }
+
+            renderBoard() {
+                const boardElement = document.getElementById('gameBoard');
+                boardElement.innerHTML = '';
+                
+                this.gameBoard.forEach((cell, index) => {
+                    const cellElement = document.createElement('button');
+                    cellElement.className = 'cell';
+                    cellElement.onclick = () => this.revealCell(index);
+                    boardElement.appendChild(cellElement);
+                });
+            }
+
+            revealCell(index) {
+                if (this.gameEnded || this.gameBoard[index].isRevealed || !this.roundInProgress) {
+                    return;
+                }
+
+                // ตรวจสอบว่าผู้เล่นคนไหนกด (สำหรับการเลือก)
+                this.handleCellSelection(index);
+            }
+
+            handleCellSelection(index) {
+                const cellElement = document.querySelectorAll('.cell')[index];
+                
+                // ถ้าช่องนี้ถูกเลือกแล้ว ให้ยกเลิกการเลือก
+                if (this.player1Selection === index) {
+                    this.player1Selection = null;
+                    cellElement.classList.remove('selected-p1');
+                } else if (this.player2Selection === index) {
+                    this.player2Selection = null;
+                    cellElement.classList.remove('selected-p2');
+                } else {
+                    // เลือกช่องใหม่
+                    if (this.player1Selection === null) {
+                        // ผู้เล่น 1 เลือก
+                        this.player1Selection = index;
+                        cellElement.classList.add('selected-p1');
+                    } else if (this.player2Selection === null) {
+                        // ผู้เล่น 2 เลือก
+                        this.player2Selection = index;
+                        cellElement.classList.add('selected-p2');
+                    } else {
+                        // ทั้งคู่เลือกแล้ว ให้เปลี่ยนการเลือกของผู้เล่น 1
+                        document.querySelectorAll('.cell')[this.player1Selection].classList.remove('selected-p1');
+                        this.player1Selection = index;
+                        cellElement.classList.add('selected-p1');
+                    }
+                }
+                
+                this.updateSelectionStatus();
+                
+                // ถ้าทั้งคู่เลือกแล้ว ให้ประมวลผลทันที
+                if (this.player1Selection !== null && this.player2Selection !== null) {
+                    clearInterval(this.timerInterval);
+                    setTimeout(() => this.processSelections(), 500);
+                }
+            }
+
+            updateSelectionStatus() {
+                const p1Status = document.getElementById('p1Status');
+                const p2Status = document.getElementById('p2Status');
+                
+                if (this.player1Selection !== null) {
+                    p1Status.textContent = '🔵 ODD: เลือกแล้ว ✓';
+                    p1Status.className = 'player-selection selected';
+                } else {
+                    p1Status.textContent = '🔵 ODD: รอการเลือก...';
+                    p1Status.className = 'player-selection waiting';
+                }
+                
+                if (this.player2Selection !== null) {
+                    p2Status.textContent = '🔴 ADD: เลือกแล้ว ✓';
+                    p2Status.className = 'player-selection selected';
+                } else {
+                    p2Status.textContent = '🔴 ADD: รอการเลือก...';
+                    p2Status.className = 'player-selection waiting';
+                }
+            }
+
+
+
+            processSelections() {
+                this.roundInProgress = false;
+                
+                // ถ้าไม่มีใครเลือก ให้หักคะแนนทั้งคู่และเริ่มรอบใหม่
+                if (this.player1Selection === null && this.player2Selection === null) {
+                    this.updateScore(-5, 1); // หักคะแนน ODD
+                    this.updateScore(-5, 2); // หักคะแนน ADD
+                    this.showTimeoutMessage("ทั้งคู่ไม่เลือกช่อง -5 คะแนน!");
+                    setTimeout(() => this.startNewRound(), 2000);
+                    return;
+                }
+                
+                // ถ้ามีคนเลือกแค่คนเดียว ให้หักคะแนนคนที่ไม่เลือกและเริ่มรอบใหม่
+                if (this.player1Selection === null || this.player2Selection === null) {
+                    if (this.player1Selection === null) {
+                        this.updateScore(-5, 1); // หักคะแนน ODD
+                        this.showTimeoutMessage("🔵 ODD ไม่เลือกช่อง -5 คะแนน!");
+                    }
+                    if (this.player2Selection === null) {
+                        this.updateScore(-5, 2); // หักคะแนน ADD
+                        this.showTimeoutMessage("🔴 ADD ไม่เลือกช่อง -5 คะแนน!");
+                    }
+                    
+                    // เอาการเลือกออกก่อนรีเซ็ต
+                    document.querySelectorAll('.cell').forEach(cell => {
+                        cell.classList.remove('selected-p1', 'selected-p2');
+                    });
+                    setTimeout(() => this.startNewRound(), 2000);
+                    return;
+                }
+                
+                // ถ้าทั้งคู่เลือกแล้ว ให้ประมวลผลปกติ
+                this.revealSelectedCell(this.player1Selection, 1);
+                this.revealSelectedCell(this.player2Selection, 2);
+                
+                // เช็คว่าเกมจบหรือยัง
+                if (this.revealedCells >= this.totalCells) {
+                    this.endGame();
+                } else {
+                    // เริ่มรอบใหม่หลังจาก 2 วินาที
+                    setTimeout(() => this.startNewRound(), 2000);
+                }
+            }
+
+            revealSelectedCell(index, player) {
+                if (this.gameBoard[index].isRevealed) return;
+                
+                const cell = this.gameBoard[index];
+                const cellElement = document.querySelectorAll('.cell')[index];
+                const rect = cellElement.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                cell.isRevealed = true;
+                cellElement.classList.add('revealed');
+                cellElement.classList.remove('selected-p1', 'selected-p2');
+                this.revealedCells++;
+
+                if (cell.isBomb) {
+                    // โดนระเบิด - รีเซ็ตคอมโบ
+                    if (player === 1) {
+                        this.player1Combo = 0;
+                    } else {
+                        this.player2Combo = 0;
+                    }
+                    
+                    cellElement.classList.add('bomb');
+                    cellElement.textContent = '💣';
+                    this.triggerExplosionEffect();
+                    this.createParticles(centerX, centerY, '#ef4444', 12);
+                    this.updateScore(-10, player);
+                } else {
+                    // ปลอดภัย - เพิ่มคอมโบ
+                    if (player === 1) {
+                        this.player1Combo++;
+                        this.showComboEffect(this.player1Combo, 1);
+                    } else {
+                        this.player2Combo++;
+                        this.showComboEffect(this.player2Combo, 2);
+                    }
+                    
+                    this.consecutiveSafe++;
+                    
+                    cellElement.classList.add('safe');
+                    cellElement.textContent = '✅';
+                    this.triggerSafeEffect();
+                    this.createParticles(centerX, centerY, '#10b981', 8);
+                    
+                    // คะแนนพิเศษสำหรับคอมโบ
+                    let baseScore = 10;
+                    let comboBonus = 0;
+                    
+                    if (player === 1 && this.player1Combo >= 3) {
+                        comboBonus = (this.player1Combo - 2) * 5;
+                    } else if (player === 2 && this.player2Combo >= 3) {
+                        comboBonus = (this.player2Combo - 2) * 5;
+                    }
+                    
+                    this.updateScore(baseScore + comboBonus, player);
+                    
+                    // เอฟเฟกต์พิเศษเมื่อได้คะแนนสูง
+                    if (this.consecutiveSafe >= 5) {
+                        this.triggerRainbowEffect();
+                        this.consecutiveSafe = 0;
+                    }
+                }
+            }
+
+            updateScore(points, player) {
+                if (player === 1) {
+                    this.player1Score += points;
+                } else {
+                    this.player2Score += points;
+                }
+                this.updateUI();
+            }
+
+            triggerExplosionEffect() {
+                // เอฟเฟกต์แฟลช
+                const flashEffect = document.createElement('div');
+                flashEffect.className = 'flash-effect';
+                document.body.appendChild(flashEffect);
+                
+                // เอฟเฟกต์สั่นหน้าจอ
+                document.body.classList.add('screen-shake');
+                
+                // ลบเอฟเฟกต์หลังจากเสร็จ
+                setTimeout(() => {
+                    document.body.removeChild(flashEffect);
+                    document.body.classList.remove('screen-shake');
+                }, 500);
+            }
+
+            triggerSafeEffect() {
+                // เอฟเฟกต์แฟลชสีเขียว
+                const safeFlash = document.createElement('div');
+                safeFlash.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+                    pointer-events: none;
+                    z-index: 999;
+                    opacity: 0;
+                    animation: safeFlash 0.4s ease-out;
+                `;
+                
+                // เพิ่ม keyframes สำหรับ safeFlash
+                if (!document.querySelector('#safeFlashStyle')) {
+                    const style = document.createElement('style');
+                    style.id = 'safeFlashStyle';
+                    style.textContent = `
+                        @keyframes safeFlash {
+                            0% { opacity: 0; }
+                            30% { opacity: 1; }
+                            100% { opacity: 0; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                document.body.appendChild(safeFlash);
+                
+                // ลบเอฟเฟกต์หลังจากเสร็จ
+                setTimeout(() => {
+                    document.body.removeChild(safeFlash);
+                }, 400);
+            }
+
+            updateUI() {
+                document.getElementById('player1Score').textContent = `${this.player1Score} คะแนน`;
+                document.getElementById('player2Score').textContent = `${this.player2Score} คะแนน`;
+            }
+
+            endGame() {
+                this.gameEnded = true;
+                let winner, winnerText;
+                
+                if (this.player1Score > this.player2Score) {
+                    winner = 'ODD (สีน้ำเงิน)';
+                    winnerText = '🎉 ODD ชนะ! 🎉';
+                } else if (this.player2Score > this.player1Score) {
+                    winner = 'ADD (สีแดง)';
+                    winnerText = '🎉 ADD ชนะ! 🎉';
+                } else {
+                    winnerText = '🤝 เสมอกัน! 🤝';
+                }
+
+                document.getElementById('winnerText').textContent = winnerText;
+                document.getElementById('finalScores').innerHTML = `
+                    🔵 ODD: ${this.player1Score} คะแนน<br>
+                    🔴 ADD: ${this.player2Score} คะแนน
+                `;
+                document.getElementById('gameOver').style.display = 'flex';
+            }
+
+            reset() {
+                // หยุดไทเมอร์ถ้ามี
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                }
+                
+                this.player1Score = 0;
+                this.player2Score = 0;
+                this.revealedCells = 0;
+                this.gameEnded = false;
+                this.gameStarted = false;
+                this.player1Selection = null;
+                this.player2Selection = null;
+                this.timeLeft = 30;
+                this.roundInProgress = false;
+                
+                // รีเซ็ตคอมโบ
+                this.player1Combo = 0;
+                this.player2Combo = 0;
+                this.consecutiveSafe = 0;
+                
+                document.getElementById('gameOver').style.display = 'none';
+                document.getElementById('startScreen').style.display = 'flex';
+            }
+        }
+
+        // เริ่มเกม
+        let game = new BombGame();
+
+        function startGame() {
+            game.startGame();
+        }
+
+        function resetGame() {
+            game.reset();
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96e7065113dcd037',t:'MTc1NTA3NTY1My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
